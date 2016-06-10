@@ -1,0 +1,6 @@
+[submodule "salt/roots/salt/jcu"]
+	path = salt/roots/salt/jcu
+	url = https://github.com/jcu-eresearch/shared-salt-states.git
+[submodule "salt/roots/formulas/mysql-formula"]
+	path = salt/roots/formulas/mysql-formula
+	url = https://github.com/jcu-eresearch/mysql-formula

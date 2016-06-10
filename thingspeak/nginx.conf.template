@@ -1,0 +1,53 @@
+# ThingSpeak web UI
+server {
+    listen 80;
+    server_name ${NGINX_HOST};
+
+    location '/.well-known/acme-challenge' {
+        default_type "text/plain";
+        root /usr/share/nginx/html;
+    }
+
+    location / {
+        return 301 https://${NGINX_HOST}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${NGINX_HOST};
+
+    ssl_certificate /etc/letsencrypt/live/${NGINX_HOST}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${NGINX_HOST}/privkey.pem;
+    add_header Strict-Transport-Security $hsts_header;
+
+    access_log /var/log/nginx/${NGINX_HOST}.access.log main buffer=2k;
+
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+}
+
+# ThingSpeak API endpoint
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name api.${NGINX_HOST};
+
+    ssl_certificate /etc/letsencrypt/live/api.${NGINX_HOST}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.${NGINX_HOST}/privkey.pem;
+
+    access_log /var/log/nginx/api.${NGINX_HOST}.access.log main buffer=2k;
+
+    location '/.well-known/acme-challenge' {
+        default_type "text/plain";
+        root /usr/share/nginx/html;
+    }
+
+    location / {
+        if ($https) {
+            add_header Strict-Transport-Security $hsts_header;
+        }
+        proxy_pass http://localhost:3000;
+    }
+}
