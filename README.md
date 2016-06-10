@@ -13,14 +13,17 @@
 
 Install Docker and Docker Compose and provision like so:
 
-   docker-compose up -d
+    docker-compose up -d
 
 On the first run, configure the database accordingly:
 
-   docker-compose run --rm web bundle exec rake db:create
-   docker-compose run --rm web bundle exec rake db:schema:load
+    docker-compose run --rm web bundle exec rake db:create
+    docker-compose run --rm web bundle exec rake db:schema:load
 
 ## Todo
 
-* Backup of postgres
+* Finish nginx configuration
+* Change to uWSGI/Passenger and/or Unix sockets for Rails (over HTTP servers)
 * Let's Encrypt and automatic updates
+* Environment variables for default usernames and passwords
+* Backup of postgres
