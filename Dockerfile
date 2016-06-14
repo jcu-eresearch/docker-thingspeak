@@ -20,6 +20,10 @@ WORKDIR /opt/thingspeak
 # Ensure that Bundler installs the postgres gem
 RUN echo "gem 'pg'" >> /opt/thingspeak/Gemfile && bundle install
 
+# Patch files
+COPY ./thingspeak/jcua-thingspeak.png app/assets/images/thingspeak_logo_white.png
+COPY ./thingspeak/jcua-thingspeak.png public/assets/thingspeak_logo_white.png
+
 # Limited access user creation and config
 RUN groupadd -r thingspeak && useradd -r -g thingspeak thingspeak
 RUN mkdir log tmp && chown -R thingspeak:thingspeak log tmp

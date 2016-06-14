@@ -2,33 +2,29 @@ version: '2'
 services:
   db:
     image: postgres:9
-    ports:
-      - "5432"
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=thingspeak
   thingspeak:
     build: .
-    command: bash
-    ports:
-      - "3000"
     volumes:
       - ./thingspeak/database.yml:/opt/thingspeak/config/database.yml
       - ./thingspeak/environment.rb:/opt/thingspeak/config/environment.rb
       - ./thingspeak/active_admin.rb:/opt/thingspeak/config/initializers/active_admin.rb
-    depends_on:
+    links:
       - db
   web:
     image: nginx:stable
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "80:80"
+      - "443:443"
     environment:
       - NGINX_HOST=thingspeak.jcu.io
     volumes:
       - ./thingspeak/nginx.conf.template:/etc/nginx/conf.d/nginx.conf.template
-    # Explicitly allow $NGINX_HOST variable replacement to avoid conflicts
-    command: >
-      /bin/bash -c "envsubst '$NGINX_HOST' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
-    depends_on:
+    links:
       - thingspeak
+    # Explicitly allow $NGINX_HOST variable replacement to avoid conflicts
+    # Double-escape the $ because of Docker Compose's variable substitution
+    command: >
+      /bin/bash -c "envsubst '$${NGINX_HOST}' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

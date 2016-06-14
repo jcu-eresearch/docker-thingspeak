@@ -1,3 +1,7 @@
+map $scheme $hsts_header {
+    https   max-age=31536000;
+}
+
 # ThingSpeak web UI
 server {
     listen 80;
@@ -9,7 +13,10 @@ server {
     }
 
     location / {
-        return 301 https://${NGINX_HOST}$request_uri;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://thingspeak:3000;
+        #return 301 https://${NGINX_HOST}$request_uri;
     }
 }
 
@@ -24,7 +31,9 @@ server {
     access_log /var/log/nginx/${NGINX_HOST}.access.log main buffer=2k;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://thingspeak:3000;
     }
 }
 
@@ -48,6 +57,8 @@ server {
         if ($https) {
             add_header Strict-Transport-Security $hsts_header;
         }
-        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://thingspeak:3000;
     }
 }
